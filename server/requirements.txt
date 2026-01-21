@@ -1,0 +1,8 @@
+fastmcp
+msal
+PyJWT
+pydantic-settings
+python-dotenv
+aiohttp
+microsoft-agents-activity
+microsoft-agents-copilotstudio-client
