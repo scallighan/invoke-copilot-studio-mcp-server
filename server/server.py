@@ -5,6 +5,7 @@ import os
 from fastmcp import FastMCP, Context
 from fastmcp.server.auth.providers.azure import AzureProvider
 from fastmcp.server.dependencies import get_http_headers, get_access_token
+from fastmcp.server.middleware import Middleware, MiddlewareContext
 from mcp.types import TextContent, ImageContent
 from microsoft_agents.activity import ActivityTypes, load_configuration_from_env
 from microsoft_agents.copilotstudio.client import (
@@ -29,6 +30,19 @@ auth_provider = AzureProvider(
 
 mcp = FastMCP("FastMCP Invoke Copilot Studio Server", auth=auth_provider)
 
+
+
+class HeaderMiddleware(Middleware):
+    async def __call__(self, context: MiddlewareContext, call_next):
+        # This method receives ALL messages regardless of type
+        headers = get_http_headers()
+        logger.info(f"HeaderMiddleware called: {{'headers': {headers}}}")
+        logger.info(f"HeaderMiddleware processing: {context.method}")
+        result = await call_next(context)
+        logger.info(f"HeaderMiddleware completed: {context.method}")
+        return result
+
+mcp.add_middleware(HeaderMiddleware())
 
 def acquire_token(settings, app_client_id, tenant_id):
     # --- IGNORE ---
@@ -79,9 +93,9 @@ async def get_user_info() -> dict:
 
 @mcp.tool
 async def invoke(query: str, ctx: Context) -> str:
-    headers = get_http_headers()
+    #headers = get_http_headers()
     
-    logger.info(f"invoke called: {{'query': '{query}', 'headers': {headers}}}")
+    logger.info(f"invoke called: {{'query': '{query}'}}")
     copilot_client = create_client()
     act = copilot_client.start_conversation(True)
     logger.info("Starting conversation...")

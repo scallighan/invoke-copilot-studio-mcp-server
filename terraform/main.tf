@@ -200,7 +200,7 @@ resource "azurerm_container_app" "mcp" {
       }
       env {
         name = "BASE_URL"
-        value = "https://aca-${local.func_name}.${azurerm_container_app_environment.this.default_domain}
+        value = "https://aca-${local.func_name}.${azurerm_container_app_environment.this.default_domain}"
       }
     }
     http_scale_rule {
