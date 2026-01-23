@@ -208,3 +208,7 @@ __marimo__/
 
 
 **/.env
+
+**/terraform.tfstate
+**/terraform.tfstate.backup
+**/.terraform

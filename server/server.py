@@ -22,7 +22,7 @@ auth_provider = AzureProvider(
     client_id=os.environ.get("COPILOTSTUDIOAGENT__AGENTAPPID"),  # Your Azure App Client ID
     client_secret=os.environ.get("COPILOTSTUDIOAGENT__CLIENTSECRET"),                 # Your Azure App Client Secret
     tenant_id=os.environ.get("COPILOTSTUDIOAGENT__TENANTID"), # Your Azure Tenant ID (REQUIRED)
-    base_url="http://localhost:8000",                   # Must match your App registration
+    base_url=os.environ.get("BASE_URL"),                   # Must match your App registration
     required_scopes=["invoke"],                 # At least one scope REQUIRED - name of scope from your App
 )
 
