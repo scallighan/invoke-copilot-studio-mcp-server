@@ -84,11 +84,70 @@ resource "azurerm_subnet" "cluster" {
   }
 }
 
+resource "azurerm_subnet" "apim" {
+  name                 = "apim-subnet-${local.loc_for_naming}"
+  resource_group_name  = azurerm_resource_group.rg.name
+  virtual_network_name = azurerm_virtual_network.default.name
+  address_prefixes     = ["172.18.3.0/24"]
+}
+
 resource "azurerm_subnet" "pe" {
   name                 = "pe-subnet-${local.loc_for_naming}"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.default.name
   address_prefixes     = ["172.18.2.0/24"]
+}
+
+
+resource "azurerm_network_security_group" "nsgapim" {
+  name                = "nsg-${local.func_name}-apim"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+
+  security_rule {
+    name                       = "AllowHTTPs"
+    priority                   = 1000
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_ranges    = ["443"]
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+  security_rule {
+    name                       = "AllowApim"
+    priority                   = 1100
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_ranges    = ["3443"]
+    source_address_prefix      = "ApiManagement"
+    destination_address_prefix = "*"
+  }
+
+  tags = local.tags
+}
+
+resource "azurerm_subnet_network_security_group_association" "nsg_association" {
+  subnet_id                 = azurerm_subnet.apim.id
+  network_security_group_id = azurerm_network_security_group.nsgapim.id
+}
+
+resource "azurerm_api_management" "apim" {
+  name                 = "apim-${local.func_name}"
+  location             = azurerm_resource_group.rg.location
+  resource_group_name  = azurerm_resource_group.rg.name
+  publisher_name       = "Implodingduck"
+  publisher_email      = "something@nothing.com"
+  sku_name = "Developer_1"
+  virtual_network_type = "External"
+  
+  virtual_network_configuration {
+    subnet_id = azurerm_subnet.apim.id
+  }
 }
 
 resource "azurerm_key_vault" "kv" {

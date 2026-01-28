@@ -30,10 +30,8 @@ auth_provider = AzureProvider(
 
 mcp = FastMCP("FastMCP Invoke Copilot Studio Server", auth=auth_provider)
 
-
-
 class HeaderMiddleware(Middleware):
-    async def __call__(self, context: MiddlewareContext, call_next):
+    async def on_message(self, context: MiddlewareContext, call_next):
         # This method receives ALL messages regardless of type
         headers = get_http_headers()
         logger.info(f"HeaderMiddleware called: {{'headers': {headers}}}")
